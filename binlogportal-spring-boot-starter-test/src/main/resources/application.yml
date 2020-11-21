@@ -1,0 +1,28 @@
+#显示debug日志信息
+debug: true
+
+binlogportal:
+  enable: true # 是否启用autoconfig
+  distributed-enable: true # 是否启用分布式部署
+  distributed-redis: # distributed-enable为true时，要提供一个redis作为分布式协调器，最好开启持久化
+    host: 127.0.0.1
+    port: 6379
+    auth:
+  position-redis: # 保存binlog position的redis，必须配置，最好开启持久化
+    host: 127.0.0.1
+    port: 6379
+    auth:
+  db-config: # 数据库配置，可以有多个，key自定义即可
+    d1:
+      host: 127.0.0.1
+      port: 3306
+      user-name: binlogportal
+      password: 123456
+      handler-list: [logEventHandler] # 该数据库使用的事件处理器，名称为spring的bean name
+#  http-handler: # 启用自带的http时间处理器，可发送请求
+#    url-list: [http://127.0.0.1:8988/testit] # 要发送的url列表，http参数为统一的格式
+#    result-callback: httpCallBack # 配置自定义的结果处理器，需要实现IHttpCallback接口，值为bean name
+
+logging:
+  file:
+    path: /var/log/binlogportal
