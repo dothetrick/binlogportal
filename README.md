@@ -12,8 +12,9 @@ It has following features:
 
 - - -
 ## 项目简介
-
 一个轻量级的mysql binlog同步工具。可以单机部署，同时支持分布式高可用。
+
+![](http://dothetrick.gitee.io/my-img-bed/article-imgs/binlog-portal.png)
 
 项目主要目标是提供可基于spring boot快速部署的同步工具，外部依赖只有redis。
 
@@ -136,3 +137,6 @@ public class TestClass{
 每个实例都会加载全部数据库的配置，在创建binlog连接之前，先要获取redis锁，获取锁后会定时刷新锁的过期时间。所有实例会定时重新抢锁。
 
 同一个mysql库的binlog文件和position会保存在redis里，如果一个实例宕机。新抢到锁的实例在初始化时，会使用上个实例已保存的binlog信息继续获取。
+
+
+[]: http://dothetrick.gitee.io/my-img-bed/article-imgs/binlog-portal.png
