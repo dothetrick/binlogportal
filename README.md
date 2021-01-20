@@ -14,7 +14,7 @@ It has following features:
 ## 项目简介
 一个轻量级的mysql binlog同步工具。可以单机部署，同时支持分布式高可用。
 
-![](http://dothetrick.gitee.io/my-img-bed/article-imgs/binlog-portal.png)
+![](binlogportal/doc/binlog-portal.png)
 
 项目主要目标是提供可基于spring boot快速部署的同步工具，外部依赖只有redis。
 
