@@ -3,14 +3,16 @@ package com.insistingon.binlogportal.config;
 import com.insistingon.binlogportal.distributed.IDistributedHandler;
 import com.insistingon.binlogportal.event.lifecycle.BaseLifeCycleListenerFactory;
 import com.insistingon.binlogportal.event.lifecycle.ILifeCycleFactory;
+import com.insistingon.binlogportal.factory.BinaryLogClientFactory;
+import com.insistingon.binlogportal.factory.IClientFactory;
 import com.insistingon.binlogportal.position.IPositionHandler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BinlogPortalConfig {
     //配置列表
-    List<SyncConfig> syncConfigList = new ArrayList<>();
+    Map<String, SyncConfig> syncConfigList = new HashMap<>();
 
     //binlog位点处理器
     IPositionHandler positionHandler;
@@ -21,12 +23,14 @@ public class BinlogPortalConfig {
     //LifeCycleEvent监听器
     ILifeCycleFactory lifeCycleFactory = new BaseLifeCycleListenerFactory();
 
+    IClientFactory clientFactory = new BinaryLogClientFactory();
+
     //增加配置项
-    public void addSyncConfig(SyncConfig syncConfig) {
-        syncConfigList.add(syncConfig);
+    public void addSyncConfig(String key, SyncConfig syncConfig) {
+        syncConfigList.put(key, syncConfig);
     }
 
-    public List<SyncConfig> getSyncConfigList() {
+    public Map<String, SyncConfig> getSyncConfigMap() {
         return syncConfigList;
     }
 
@@ -52,5 +56,13 @@ public class BinlogPortalConfig {
 
     public void setLifeCycleFactory(ILifeCycleFactory lifeCycleFactory) {
         this.lifeCycleFactory = lifeCycleFactory;
+    }
+
+    public IClientFactory getClientFactory() {
+        return clientFactory;
+    }
+
+    public void setClientFactory(IClientFactory clientFactory) {
+        this.clientFactory = clientFactory;
     }
 }

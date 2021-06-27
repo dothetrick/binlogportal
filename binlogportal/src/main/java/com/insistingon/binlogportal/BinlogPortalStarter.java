@@ -5,7 +5,7 @@ import com.insistingon.binlogportal.config.BinlogPortalConfig;
 import com.insistingon.binlogportal.config.RedisConfig;
 import com.insistingon.binlogportal.config.SyncConfig;
 import com.insistingon.binlogportal.distributed.RedisDistributedHandler;
-import com.insistingon.binlogportal.factory.BinaryLogClientFactory;
+import com.insistingon.binlogportal.factory.IClientFactory;
 import com.insistingon.binlogportal.position.RedisPositionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +43,13 @@ public class BinlogPortalStarter {
 
     private void SingleStart() {
         //新建工厂对象
-        BinaryLogClientFactory binaryLogClientFactory = new BinaryLogClientFactory();
+        IClientFactory binaryLogClientFactory = binlogPortalConfig.getClientFactory();
         binaryLogClientFactory.setPositionHandler(binlogPortalConfig.getPositionHandler());
         binaryLogClientFactory.setLifeCycleFactory(binlogPortalConfig.getLifeCycleFactory());
 
         //生成全部client
         List<BinaryLogClient> binaryLogClientList = new ArrayList<>();
-        binlogPortalConfig.getSyncConfigList().forEach(syncConfig -> {
+        binlogPortalConfig.getSyncConfigMap().forEach((key, syncConfig) -> {
             try {
                 binaryLogClientList.add(binaryLogClientFactory.getClient(syncConfig));
             } catch (BinlogPortalException e) {
@@ -70,6 +70,14 @@ public class BinlogPortalStarter {
         });
     }
 
+    public BinaryLogClient getClientByDbKey(String key) {
+        SyncConfig syncConfig = binlogPortalConfig.getSyncConfigMap().get(key);
+        if (syncConfig == null) {
+            return null;
+        }
+        return binlogPortalConfig.getClientFactory().getCachedClient(syncConfig);
+    }
+
     public static void main(String[] args) {
         SyncConfig syncConfig = new SyncConfig();
         syncConfig.setHost("0.0.0.0");
@@ -78,7 +86,7 @@ public class BinlogPortalStarter {
         syncConfig.setPassword("123456");
 
         BinlogPortalConfig binlogPortalConfig = new BinlogPortalConfig();
-        binlogPortalConfig.addSyncConfig(syncConfig);
+        binlogPortalConfig.addSyncConfig("d1", syncConfig);
 
         RedisConfig redisConfig = new RedisConfig("127.0.0.1", 6379);
         RedisPositionHandler redisPositionHandler = new RedisPositionHandler(redisConfig);

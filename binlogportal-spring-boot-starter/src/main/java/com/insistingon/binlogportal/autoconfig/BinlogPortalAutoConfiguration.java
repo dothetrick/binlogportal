@@ -52,6 +52,7 @@ public class BinlogPortalAutoConfiguration {
 
         //dbconfig list
         for (Map.Entry<String, DbConfig> entry : binlogPortalBootConfig.getDbConfig().entrySet()) {
+            String key = entry.getKey();
             DbConfig val = entry.getValue();
             SyncConfig syncConfig = new SyncConfig();
             syncConfig.setHost(val.getHost());
@@ -66,7 +67,7 @@ public class BinlogPortalAutoConfiguration {
             if (httpRequestEventHandler != null) {
                 syncConfig.addEventHandlerList(httpRequestEventHandler);
             }
-            binlogPortalConfig.addSyncConfig(syncConfig);
+            binlogPortalConfig.addSyncConfig(key, syncConfig);
         }
 
         //binlog position config

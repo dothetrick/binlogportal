@@ -1,10 +1,10 @@
 package com.insistingon.binlogportal.distributed;
 
+import com.insistingon.binlogportal.BinlogPortalException;
 import com.insistingon.binlogportal.config.BinlogPortalConfig;
 import com.insistingon.binlogportal.config.RedisConfig;
 import com.insistingon.binlogportal.config.SyncConfig;
-import com.insistingon.binlogportal.factory.BinaryLogClientFactory;
-import com.insistingon.binlogportal.BinlogPortalException;
+import com.insistingon.binlogportal.factory.IClientFactory;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang.StringUtils;
 import org.redisson.Redisson;
@@ -45,7 +45,7 @@ public class RedisDistributedHandler implements IDistributedHandler {
         RedissonClient redisson = Redisson.create(config);
 
         //新建工厂对象
-        BinaryLogClientFactory binaryLogClientFactory = new BinaryLogClientFactory();
+        IClientFactory binaryLogClientFactory = binlogPortalConfig.getClientFactory();
         binaryLogClientFactory.setPositionHandler(binlogPortalConfig.getPositionHandler());
         binaryLogClientFactory.setLifeCycleFactory(binlogPortalConfig.getLifeCycleFactory());
 
@@ -53,7 +53,7 @@ public class RedisDistributedHandler implements IDistributedHandler {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                binlogPortalConfig.getSyncConfigList().forEach(syncConfig -> {
+                binlogPortalConfig.getSyncConfigMap().forEach((key, syncConfig) -> {
                     String lockStr = Md5Crypt.md5Crypt(syncConfig.toString().getBytes(), null, "");
                     RLock lock = redisson.getLock(lockStr);
                     try {

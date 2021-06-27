@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * BinaryLogClient Factory
  */
-public class BinaryLogClientFactory {
+public class BinaryLogClientFactory implements IClientFactory {
 
     private ConcurrentHashMap<String, BinaryLogClient> cache = new ConcurrentHashMap<>();
 
@@ -58,6 +58,7 @@ public class BinaryLogClientFactory {
      * @param syncConfig SyncConfig
      * @return BinaryLogClient
      */
+    @Override
     public BinaryLogClient getClient(SyncConfig syncConfig) throws BinlogPortalException {
         String key = syncConfig.toString();
         //有缓存拿缓存里的
@@ -107,9 +108,17 @@ public class BinaryLogClientFactory {
             client.registerEventListener(multiEventHandlerListener);
             client.registerLifecycleListener(lifeCycleFactory.getLifeCycleListener(syncConfig));
 
+            cache.put(key, client);
             return client;
         }
     }
+
+    @Override
+    public BinaryLogClient getCachedClient(SyncConfig syncConfig) {
+        String key = syncConfig.toString();
+        return cache.get(key);
+    }
+
 
     private long getRandomServerId() {
         try {
