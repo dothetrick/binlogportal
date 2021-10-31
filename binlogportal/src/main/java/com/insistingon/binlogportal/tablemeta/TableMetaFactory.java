@@ -28,7 +28,7 @@ public class TableMetaFactory {
                 String url = "jdbc:mysql://" + syncConfig.getHost() + ":" + syncConfig.getPort() + "/" + dbName;
                 connection = DriverManager.getConnection(url, syncConfig.getUserName(), syncConfig.getPassword());
                 DatabaseMetaData dbmd = connection.getMetaData();
-                ResultSet rs = dbmd.getColumns(null, dbName, tableName, null);
+                ResultSet rs = dbmd.getColumns(dbName, dbName, tableName, null);
                 TableMetaEntity tableMetaEntity = new TableMetaEntity();
                 tableMetaEntity.setTableId(tableId);
                 tableMetaEntity.setDbName(dbName);
