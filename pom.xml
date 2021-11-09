@@ -7,7 +7,7 @@
     <groupId>com.insistingon.binlogportal</groupId>
     <artifactId>binlogportal-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
 
     <name>binlogportal-parent</name>
     <description>A simple mysql binlog sync tool</description>
@@ -21,7 +21,7 @@
         <springboot.version>2.3.0.RELEASE</springboot.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <newVersion>1.0.11</newVersion>
+        <newVersion>1.0.12</newVersion>
     </properties>
 
     <modules>

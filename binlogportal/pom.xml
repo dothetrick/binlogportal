@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.insistingon.binlogportal</groupId>
         <artifactId>binlogportal-parent</artifactId>
-        <version>1.0.11</version>
+        <version>1.0.12</version>
     </parent>
 
     <artifactId>binlogportal</artifactId>
