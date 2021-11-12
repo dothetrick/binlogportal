@@ -84,6 +84,7 @@ public class BinlogPortalStarter {
         syncConfig.setPort(3306);
         syncConfig.setUserName("binlogportal");
         syncConfig.setPassword("123456");
+        syncConfig.setEventHandlerList(Collections.singletonList(eventEntity -> System.out.println(eventEntity.getJsonFormatData())));
 
         BinlogPortalConfig binlogPortalConfig = new BinlogPortalConfig();
         binlogPortalConfig.addSyncConfig("d1", syncConfig);
