@@ -20,7 +20,7 @@ public class BinlogSync implements CommandLineRunner {
 
     public void run(String... args) throws Exception {
         new Thread(this::start).start();
-        new Thread(this::check).start();
+        //new Thread(this::check).start();
     }
 
     void start() {
