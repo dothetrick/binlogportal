@@ -6,7 +6,7 @@
     <parent>
         <artifactId>binlogportal-parent</artifactId>
         <groupId>com.insistingon.binlogportal</groupId>
-        <version>1.0.12</version>
+        <version>1.0.13</version>
     </parent>
 
     <artifactId>binlogportal-spring-boot-starter-test</artifactId>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>com.insistingon.binlogportal</groupId>
             <artifactId>binlogportal-spring-boot-starter</artifactId>
-            <version>1.0.12</version>
+            <version>1.0.13</version>
         </dependency>
 
         <dependency>
