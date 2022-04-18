@@ -12,7 +12,6 @@ import com.insistingon.binlogportal.position.IPositionHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -122,8 +121,8 @@ public class BinaryLogClientFactory implements IClientFactory {
 
     private long getRandomServerId() {
         try {
-            return SecureRandom.getInstanceStrong().nextLong();
-        } catch (NoSuchAlgorithmException e) {
+            return new SecureRandom().nextLong();
+        } catch (Throwable e) {
             return RandomUtils.nextLong();
         }
     }
