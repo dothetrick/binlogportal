@@ -81,7 +81,7 @@ public class RedisDistributedHandler implements IDistributedHandler {
                     }
                 });
             }
-        }, 0, 1000);
+        }, 0, 10 * 1000);
     }
 
     public Boolean canBuild(SyncConfig syncConfig) {
