@@ -81,16 +81,7 @@ public class BinaryLogClientFactory implements IClientFactory {
             client.setServerId(getRandomServerId());
 
             //处理binlog位点信息
-            if (positionHandler != null && positionHandler.getPosition(syncConfig) != null) {
-                BinlogPositionEntity positionEntity = positionHandler.getPosition(syncConfig);
-                if (positionEntity != null
-                        && !StringUtils.isBlank(positionEntity.getBinlogName())
-                        && positionEntity.getPosition() != null) {
-                    client.setBinlogFilename(positionEntity.getBinlogName());
-                    long position = positionEntity.getPosition() != null ? positionEntity.getPosition() : 0L;
-                    client.setBinlogPosition((position));
-                }
-            }
+            setConnectPosition(syncConfig, client);
 
             //创建多事件统一处理器
             MultiEventHandlerListener multiEventHandlerListener = new MultiEventHandlerListener();
@@ -109,6 +100,20 @@ public class BinaryLogClientFactory implements IClientFactory {
 
             cache.put(key, client);
             return client;
+        }
+    }
+
+    @Override
+    public void setConnectPosition(SyncConfig syncConfig, BinaryLogClient client) throws BinlogPortalException {
+        if (positionHandler != null && positionHandler.getPosition(syncConfig) != null) {
+            BinlogPositionEntity positionEntity = positionHandler.getPosition(syncConfig);
+            if (positionEntity != null
+                    && !StringUtils.isBlank(positionEntity.getBinlogName())
+                    && positionEntity.getPosition() != null) {
+                client.setBinlogFilename(positionEntity.getBinlogName());
+                long position = positionEntity.getPosition() != null ? positionEntity.getPosition() : 0L;
+                client.setBinlogPosition((position));
+            }
         }
     }
 

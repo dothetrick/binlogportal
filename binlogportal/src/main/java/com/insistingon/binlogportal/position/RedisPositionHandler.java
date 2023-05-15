@@ -17,6 +17,7 @@ public class RedisPositionHandler implements IPositionHandler {
     private JedisPool jedisPool;
 
     public RedisPositionHandler(RedisConfig redisConfig) {
+        this.redisConfig = redisConfig;
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxTotal(10);
         if (!StringUtils.isBlank(redisConfig.getAuth())) {

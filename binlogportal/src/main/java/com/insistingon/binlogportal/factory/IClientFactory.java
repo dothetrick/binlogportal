@@ -9,6 +9,8 @@ import com.insistingon.binlogportal.position.IPositionHandler;
 public interface IClientFactory {
     BinaryLogClient getClient(SyncConfig syncConfig) throws BinlogPortalException;
 
+    void setConnectPosition(SyncConfig syncConfig, BinaryLogClient client) throws BinlogPortalException;
+
     BinaryLogClient getCachedClient(SyncConfig syncConfig);
 
     void setPositionHandler(IPositionHandler positionHandler);

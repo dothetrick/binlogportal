@@ -1,5 +1,6 @@
 package com.insistingon.binlogportal.distributed;
 
+import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.insistingon.binlogportal.BinlogPortalException;
 import com.insistingon.binlogportal.config.BinlogPortalConfig;
 import com.insistingon.binlogportal.config.RedisConfig;
@@ -16,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,6 +52,8 @@ public class RedisDistributedHandler implements IDistributedHandler {
         binaryLogClientFactory.setPositionHandler(binlogPortalConfig.getPositionHandler());
         binaryLogClientFactory.setLifeCycleFactory(binlogPortalConfig.getLifeCycleFactory());
 
+        Map<SyncConfig, BinaryLogClient> clientMapCache = new HashMap<>();
+
         //定时创建客户端,抢到锁的就创建
         new Timer().schedule(new TimerTask() {
             @Override
@@ -57,12 +62,21 @@ public class RedisDistributedHandler implements IDistributedHandler {
                     String lockStr = Md5Crypt.md5Crypt(syncConfig.toString().getBytes(), null, "");
                     RLock lock = redisson.getLock(lockStr);
                     try {
-                        if (lock.tryLock()) {
-                            binaryLogClientFactory.getClient(syncConfig).connect();
+                        BinaryLogClient client = clientMapCache.get(syncConfig);
+                        //已经成功连接的不再抢锁
+                        if (client == null || !clientMapCache.get(syncConfig).isConnected()) {
+                            if (lock.tryLock()) {
+                                if (client == null) {
+                                    client = binaryLogClientFactory.getClient(syncConfig);
+                                    clientMapCache.put(syncConfig, client);
+                                }
+                                //重新连接前，设置当前的位点
+                                binaryLogClientFactory.setConnectPosition(syncConfig, client);
+                                client.connect();
+                            }
                         }
                     } catch (BinlogPortalException | IOException e) {
                         log.error(e.getMessage(), e);
-                    } finally {
                         lock.unlock();
                     }
                 });

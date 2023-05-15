@@ -1,5 +1,5 @@
 #显示debug日志信息
-debug: true
+#debug: true
 
 binlogportal:
   enable: true # 是否启用autoconfig
@@ -16,7 +16,7 @@ binlogportal:
     d1:
       host: 127.0.0.1
       port: 3306
-      user-name: binlogportal
+      user-name: root
       password: 123456
       handler-list: [logEventHandler] # 该数据库使用的事件处理器，名称为spring的bean name
 #  http-handler: # 启用自带的http时间处理器，可发送请求
