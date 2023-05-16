@@ -53,36 +53,44 @@ public class RedisDistributedHandler implements IDistributedHandler {
         binaryLogClientFactory.setLifeCycleFactory(binlogPortalConfig.getLifeCycleFactory());
 
         Map<SyncConfig, BinaryLogClient> clientMapCache = new HashMap<>();
+        binlogPortalConfig.getSyncConfigMap().forEach((key, syncConfig) -> {
+            try {
+                clientMapCache.put(syncConfig, binaryLogClientFactory.getClient(syncConfig));
+            } catch (BinlogPortalException e) {
+                log.error("create client error : {} , syncConfig : {}", e.getMessage(), syncConfig.toString(), e);
+            }
+        });
 
         //定时创建客户端,抢到锁的就创建
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                binlogPortalConfig.getSyncConfigMap().forEach((key, syncConfig) -> {
-                    String lockStr = Md5Crypt.md5Crypt(syncConfig.toString().getBytes(), null, "");
-                    RLock lock = redisson.getLock(lockStr);
-                    try {
-                        BinaryLogClient client = clientMapCache.get(syncConfig);
-                        //已经成功连接的不再抢锁
-                        if (client == null || !clientMapCache.get(syncConfig).isConnected()) {
-                            if (lock.tryLock()) {
-                                if (client == null) {
-                                    client = binaryLogClientFactory.getClient(syncConfig);
-                                    clientMapCache.put(syncConfig, client);
+                clientMapCache.forEach((syncConfig, client) -> {
+                    new Thread(() -> {
+                        String lockStr = Md5Crypt.md5Crypt(syncConfig.toString().getBytes(), null, "");
+                        RLock lock = redisson.getLock(lockStr);
+                        try {
+                            //已经成功连接的不再抢锁
+                            if (!client.isConnected()) {
+                                if (lock.tryLock()) {
+                                    //重新连接前，设置当前的位点
+                                    binaryLogClientFactory.setConnectPosition(syncConfig, client);
+                                    client.connect();
                                 }
-                                //重新连接前，设置当前的位点
-                                binaryLogClientFactory.setConnectPosition(syncConfig, client);
-                                client.connect();
+                            }
+                        } catch (BinlogPortalException | IOException e) {
+                            log.error("connect error : {} , syncConfig : {}", e.getMessage(), syncConfig.toString(), e);
+                        } finally {
+                            if (lock.isLocked()) {
+                                lock.unlock();
                             }
                         }
-                    } catch (BinlogPortalException | IOException e) {
-                        log.error(e.getMessage(), e);
-                        lock.unlock();
-                    }
+                    }).start();
                 });
             }
         }, 0, 10 * 1000);
     }
+
 
     public Boolean canBuild(SyncConfig syncConfig) {
         Config config = new Config();
