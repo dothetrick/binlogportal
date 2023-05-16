@@ -43,7 +43,7 @@ FLUSH PRIVILEGES;
 <dependency>
   <groupId>com.insistingon.binlogportal</groupId>
   <artifactId>binlogportal-spring-boot-starter</artifactId>
-  <version>1.0.11</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 - 通过spring boot的application.yml配置启动器
