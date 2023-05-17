@@ -30,6 +30,9 @@ public class UpdateEventParser implements IEventParser {
         UpdateRowsEventData updateRowsEventData = event.getData();
         TableMetaEntity tableMetaEntity = tableMetaFactory.getTableMetaEntity(updateRowsEventData.getTableId());
         List<Map.Entry<Serializable[], Serializable[]>> rows = updateRowsEventData.getRows();
+        if (tableMetaEntity.getDbName().equals("mysql") && tableMetaEntity.getTableName().equals("ha_health_check")){
+            return eventEntityList;
+        }
         rows.forEach(rowMap -> {
             EventEntity eventEntity = new EventEntity();
             eventEntity.setEvent(event);
