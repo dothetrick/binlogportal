@@ -4,5 +4,5 @@ import com.insistingon.binlogportal.event.EventEntity;
 import com.insistingon.binlogportal.BinlogPortalException;
 
 public interface IEventHandler {
-    public void process(EventEntity eventEntity) throws BinlogPortalException;
+    void process(EventEntity eventEntity) throws BinlogPortalException;
 }
