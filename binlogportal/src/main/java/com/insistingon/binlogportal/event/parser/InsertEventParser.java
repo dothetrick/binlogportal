@@ -11,6 +11,7 @@ import com.insistingon.binlogportal.event.EventEntityType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class InsertEventParser implements IEventParser {
@@ -31,12 +32,8 @@ public class InsertEventParser implements IEventParser {
         rows.forEach(rowMap -> {
             List<TableMetaEntity.ColumnMetaData> columnMetaDataList = tableMetaEntity.getColumnMetaDataList();
             String[] after = commonConverterProcessor.convertToString(rowMap, columnMetaDataList);
-            List<String> columns = new ArrayList<>();
             List<Object> changeAfter = new ArrayList<>();
-            for (int i = 0; i < after.length; i++) {
-                columns.add(columnMetaDataList.get(i).getName());
-                changeAfter.add(after[i]);
-            }
+            Collections.addAll(changeAfter, after);
 
             EventEntity eventEntity = new EventEntity();
             eventEntity.setEvent(event);

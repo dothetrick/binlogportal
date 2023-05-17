@@ -7,7 +7,7 @@ public class TableMetaEntity {
     private Long tableId;
     private String dbName;
     private String tableName;
-    private List<ColumnMetaData> columnMetaDataList = new ArrayList<ColumnMetaData>();
+    private List<ColumnMetaData> columnMetaDataList = new ArrayList<>();
     private String createSql;
 
     public static class ColumnMetaData {
