@@ -10,8 +10,7 @@ import com.insistingon.binlogportal.event.parser.EventParserFactory;
 import com.insistingon.binlogportal.position.BinlogPositionEntity;
 import com.insistingon.binlogportal.position.IPositionHandler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +18,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * BinaryLogClient Factory
  */
 public class BinaryLogClientFactory implements IClientFactory {
+
+    private static final SecureRandom secureRandom;
+
+    static {
+        SecureRandom random;
+        try {
+            random = SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            random = new SecureRandom();
+        }
+        secureRandom = random;
+    }
 
     private ConcurrentHashMap<String, BinaryLogClient> cache = new ConcurrentHashMap<>();
 
@@ -119,16 +130,11 @@ public class BinaryLogClientFactory implements IClientFactory {
 
     @Override
     public BinaryLogClient getCachedClient(SyncConfig syncConfig) {
-        String key = syncConfig.toString();
-        return cache.get(key);
+        return cache.get(syncConfig.toString());
     }
 
 
     private long getRandomServerId() {
-        try {
-            return new SecureRandom().nextLong();
-        } catch (Throwable e) {
-            return RandomUtils.nextLong();
-        }
+        return secureRandom.nextLong();
     }
 }
