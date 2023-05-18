@@ -30,7 +30,7 @@ public class RedisPositionHandler implements IPositionHandler {
         if (redisConfig.getCluster() != null) {
             if (redisConfig.getCluster().getNodes() != null && !redisConfig.getCluster().getNodes().isEmpty()) {
                 log.info("redis cluster mode");
-                Set<HostAndPort> nodes = redisConfig.getCluster().getNodes().map(item -> {
+                Set<HostAndPort> nodes = redisConfig.getCluster().getNodes().stream().map(item -> {
                     String[] args = item.split(":");
                     if (args.length == 2) {
                         return new HostAndPort(args[0], Integer.parseInt(args[1]));
