@@ -17,10 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class RedisDistributedHandler implements IDistributedHandler {
 
@@ -39,13 +36,29 @@ public class RedisDistributedHandler implements IDistributedHandler {
             throw new BinlogPortalException("redis config can not be null");
         }
         Config config = new Config();
-        SingleServerConfig singleServerConfig = config.useSingleServer();
-        singleServerConfig.setAddress("redis://" + redisConfig.getHost() + ":" + redisConfig.getPort());
-        if (!StringUtils.isBlank(redisConfig.getAuth())) {
-            singleServerConfig.setPassword(redisConfig.getAuth());
+
+        // 集群模式
+        if (redisConfig.getCluster() != null && !redisConfig.getCluster().getNodes().isEmpty()) {
+            log.info("redis cluster mode");
+            List<String> nodes = redisConfig.getCluster().getNodes();
+            String[] nodeStrArr = nodes.stream().map(s -> "redis://" + s).toArray(String[]::new);
+            // 设置密码
+            if (!StringUtils.isBlank(redisConfig.getAuth())) {
+                config.useClusterServers().setPassword(redisConfig.getAuth()).addNodeAddress(nodeStrArr);
+            } else {
+                config.useClusterServers().addNodeAddress(nodeStrArr);
+            }
+        } else {
+            log.info("redis single mode");
+            SingleServerConfig singleServerConfig = config.useSingleServer();
+            singleServerConfig.setAddress("redis://" + redisConfig.getHost() + ":" + redisConfig.getPort());
+            if (!StringUtils.isBlank(redisConfig.getAuth())) {
+                singleServerConfig.setPassword(redisConfig.getAuth());
+            }
         }
         config.setLockWatchdogTimeout(10000L);
         RedissonClient redisson = Redisson.create(config);
+
 
         //新建工厂对象
         IClientFactory binaryLogClientFactory = binlogPortalConfig.getClientFactory();
@@ -57,7 +70,7 @@ public class RedisDistributedHandler implements IDistributedHandler {
             try {
                 clientMapCache.put(syncConfig, binaryLogClientFactory.getClient(syncConfig));
             } catch (BinlogPortalException e) {
-                log.error("create client error : {} , syncConfig : {}", e.getMessage(), syncConfig.toString(), e);
+                log.error("create client error : {} , syncConfig : {}, e: {}", e.getMessage(), syncConfig.toString(), e);
             }
         });
 
