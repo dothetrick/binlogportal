@@ -74,7 +74,6 @@ public class RedisPositionHandler implements IPositionHandler {
                 jedis = jedisPool.getResource();
                 value = jedis.get(key);
             }
-            log.info("value : {}", value);
             if (value != null) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 return objectMapper.readValue(value, BinlogPositionEntity.class);
