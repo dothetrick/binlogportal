@@ -20,7 +20,7 @@ import java.util.*;
  * 默认的http请求类，使用固定的参数格式，发送post请求
  */
 public class HttpRequestEventHandler implements IEventHandler {
-    private final static Logger log = LoggerFactory.getLogger(HttpRequestEventHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpRequestEventHandler.class);
 
     CloseableHttpClient httpClient = HttpClients.custom().setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(1000).build())
             .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(1000).setConnectionRequestTimeout(1000).build()).build();

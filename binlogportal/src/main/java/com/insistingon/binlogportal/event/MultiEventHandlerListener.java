@@ -99,7 +99,7 @@ public class MultiEventHandlerListener implements IEventListener {
                     binlogPositionEntity.setServerId(event.getHeader().getServerId());
                 }
                 if (positionHandler != null) {
-                    log.debug(event.toString() + "---" + binlogPositionEntity.toString());
+                    log.debug("event:{} --- binlogPositionEntity:{}", event, binlogPositionEntity);
                     positionHandler.savePosition(syncConfig, binlogPositionEntity);
                 }
             }
@@ -107,15 +107,13 @@ public class MultiEventHandlerListener implements IEventListener {
             List<EventEntity> eventEntityList = eventParserDispatcher.parse(event);
             if (eventEntityList != null) {
                 //循环调用处理器
-                eventEntityList.forEach(eventEntity -> {
-                    eventHandlerList.forEach(eventHandler -> {
-                        try {
-                            eventHandler.process(eventEntity);
-                        } catch (BinlogPortalException e) {
-                            log.error(eventHandler.toString() + " process error:" + e.getMessage(), e);
-                        }
-                    });
-                });
+                eventEntityList.forEach(eventEntity -> eventHandlerList.forEach(eventHandler -> {
+                    try {
+                        eventHandler.process(eventEntity);
+                    } catch (BinlogPortalException e) {
+                        log.error("{} process error:{}", eventHandler, e.getMessage(), e);
+                    }
+                }));
             }
 
         } catch (BinlogPortalException e) {

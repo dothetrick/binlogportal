@@ -25,11 +25,14 @@ public class UpdateEventParser implements IEventParser {
     }
 
     @Override
-    public List<EventEntity> parse(Event event) throws BinlogPortalException {
+    public List<EventEntity> parse(Event event) throws BinlogPortalException{
         List<EventEntity> eventEntityList = new ArrayList<>();
         UpdateRowsEventData updateRowsEventData = event.getData();
         TableMetaEntity tableMetaEntity = tableMetaFactory.getTableMetaEntity(updateRowsEventData.getTableId());
         List<Map.Entry<Serializable[], Serializable[]>> rows = updateRowsEventData.getRows();
+        if (tableMetaEntity.getDbName().equals("mysql") && tableMetaEntity.getTableName().equals("ha_health_check")){
+            return eventEntityList;
+        }
         rows.forEach(rowMap -> {
             EventEntity eventEntity = new EventEntity();
             eventEntity.setEvent(event);
@@ -41,11 +44,9 @@ public class UpdateEventParser implements IEventParser {
             String[] before = commonConverterProcessor.convertToString(rowMap.getKey(), columnMetaDataList);
             String[] after = commonConverterProcessor.convertToString(rowMap.getValue(), columnMetaDataList);
 
-            List<String> columns = new ArrayList<>();
             List<Object> changeBefore = new ArrayList<>();
             List<Object> changeAfter = new ArrayList<>();
             for (int i = 0; i < before.length; i++) {
-                columns.add(columnMetaDataList.get(i).getName());
                 changeBefore.add(before[i]);
                 changeAfter.add(after[i]);
             }

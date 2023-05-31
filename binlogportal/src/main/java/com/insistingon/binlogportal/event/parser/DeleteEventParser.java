@@ -11,12 +11,13 @@ import com.insistingon.binlogportal.tablemeta.TableMetaFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DeleteEventParser implements IEventParser {
-    private CommonConverterProcessor commonConverterProcessor = new CommonConverterProcessor();
+    private static final CommonConverterProcessor commonConverterProcessor = new CommonConverterProcessor();
 
-    private TableMetaFactory tableMetaFactory;
+    private final TableMetaFactory tableMetaFactory;
 
     public DeleteEventParser(TableMetaFactory tableMetaFactory) {
         this.tableMetaFactory = tableMetaFactory;
@@ -31,12 +32,7 @@ public class DeleteEventParser implements IEventParser {
         rows.forEach(rowMap -> {
             List<TableMetaEntity.ColumnMetaData> columnMetaDataList = tableMetaEntity.getColumnMetaDataList();
             String[] after = commonConverterProcessor.convertToString(rowMap, columnMetaDataList);
-            List<String> columns = new ArrayList<>();
-            List<Object> changeAfter = new ArrayList<>();
-            for (int i = 0; i < after.length; i++) {
-                columns.add(columnMetaDataList.get(i).getName());
-                changeAfter.add(after[i]);
-            }
+            List<Object> changeAfter = new ArrayList<>(Arrays.asList(after));
 
             EventEntity eventEntity = new EventEntity();
             eventEntity.setEvent(event);

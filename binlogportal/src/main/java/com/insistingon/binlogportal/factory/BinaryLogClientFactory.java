@@ -11,7 +11,10 @@ import com.insistingon.binlogportal.position.BinlogPositionEntity;
 import com.insistingon.binlogportal.position.IPositionHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +22,24 @@ import java.util.concurrent.ConcurrentHashMap;
  * BinaryLogClient Factory
  */
 public class BinaryLogClientFactory implements IClientFactory {
+
+    private final Logger log = LoggerFactory.getLogger(BinaryLogClientFactory.class);
+
+    private static final SecureRandom secureRandom;
+
+    static {
+        // 优先使用系统提供的强随机数生成器
+        // linux主机熵值 cat /proc/sys/kernel/random/entropy_avail 值不应少于1000
+        // ubuntu 终端执行 sudo apt-get install haveged && sudo haveged -w 1024 修改
+        // centos 终端执行 yum install rng-tools && rngd -r /dev/urandom 修改 // 未测试
+        SecureRandom random;
+        try {
+            random = SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            random = new SecureRandom();
+        }
+        secureRandom = random;
+    }
 
     private ConcurrentHashMap<String, BinaryLogClient> cache = new ConcurrentHashMap<>();
 
@@ -119,8 +140,7 @@ public class BinaryLogClientFactory implements IClientFactory {
 
     @Override
     public BinaryLogClient getCachedClient(SyncConfig syncConfig) {
-        String key = syncConfig.toString();
-        return cache.get(key);
+        return cache.get(syncConfig.toString());
     }
 
 
